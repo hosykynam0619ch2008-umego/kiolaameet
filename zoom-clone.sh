@@ -1,31 +1,34 @@
 #!/bin/bash
 
-# Clone the zoom-clone repository
-git clone https://github.com/kaioosilva/zoom-clone.git
+Remove existing Docker packages
+echo "Removing existing Docker packages..."
+for pkg in docker.io docker-doc docker-compose docker-compose-v2 podman-docker containerd runc; do
+sudo apt-get remove "$pkg"
+done
+# Add Docker's official GPG key
+echo "Adding Docker's official GPG key..."
+sudo apt-get update
+sudo apt-get install ca-certificates curl gnupg
+sudo install -m 0755 -d /etc/apt/keyrings
+curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo gpg --dearmor -o /etc/apt/keyrings/docker.gpg
+sudo chmod a+r /etc/apt/keyrings/docker.gpg
+# Add the Docker repository to Apt sources
+echo "Adding the Docker repository to Apt sources..."
+echo \
+"deb [arch="$(dpkg --print-architecture)" signed-by=/etc/apt/keyrings/docker.gpg] https://download.docker.com/linux/ubuntu 
 
-# Navigate to the zoom-clone directory
-cd zoom-clone
+"$(. /etc/os-release && echo "$VERSION_CODENAME")" stable" | 
 
-# Navigate to the peer-server directory
-cd peer-server
+sudo tee /etc/apt/sources.list.d/docker.list > /dev/null
+sudo apt-get update
 
-# Install the peer-server dependencies
-yarn install
+Install Docker and related packages
+echo "Installing Docker and related packages..."
+sudo apt-get install docker-ce docker-ce-cli containerd.io docker-buildx-plugin docker-compose-plugin
 
-# Navigate to the server directory
-cd server
+Start a VNC server
+echo "Starting a VNC server..."
+docker run -p 6080:80 dorowu/ubuntu-desktop-lxde-vnc
 
-# Install the server dependencies
-yarn install
-
-# Navigate to the public directory
-cd public
-
-# Install the public dependencies
-yarn install
-
-# Start the development server
-yarn dev
-
-# Start the peer-server
-yarn start
+Print a success message
+echo "Docker is now installed and running!"
